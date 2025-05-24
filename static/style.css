@@ -1,0 +1,18 @@
+body {
+  font-family: Arial;
+  text-align: center;
+  margin-top: 20px;
+}
+input, button {
+  margin: 5px;
+  padding: 8px;
+  font-size: 14px;
+}
+video {
+  width: 300px;
+  border: 2px solid #000;
+}
+#result {
+  margin-top: 20px;
+  color: green;
+}

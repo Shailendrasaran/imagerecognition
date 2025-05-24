@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Face System</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h2>🎓 Register Student</h2>
+  <form id="registerForm">
+    <input name="name" placeholder="Name" required><br>
+    <input name="roll" placeholder="Roll No" required><br>
+    <input name="dept" placeholder="Department" required><br>
+    <input name="college" placeholder="College" required><br>
+    <video id="video" autoplay></video><br>
+    <button type="submit">Register</button>
+  </form>
+
+  <h2>🧠 Recognize Student</h2>
+  <button onclick="recognizeFace()">Recognize</button>
+  <div id="result"></div>
+
+  <script>
+    const video = document.getElementById("video");
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      video.srcObject = stream;
+    });
+
+    function captureImage() {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+      return canvas.toDataURL("image/jpeg");
+    }
+
+    document.getElementById("registerForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const imageData = captureImage();
+      const formData = new FormData(e.target);
+      formData.append("image", imageData);
+
+      const res = await fetch("/register", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await res.text();
+      alert(result);
+    });
+
+    async function recognizeFace() {
+      const imageData = captureImage();
+
+      const res = await fetch("/recognize", {
+        method: "POST",
+        body: JSON.stringify({ image: imageData }),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      const data = await res.json();
+      document.getElementById("result").innerHTML = `
+        <h3>${data.status}</h3>
+        ${data.name ? `
+          <p>Name: ${data.name}</p>
+          <p>Roll No: ${data.roll}</p>
+          <p>Department: ${data.dept}</p>
+          <p>College: ${data.college}</p>
+        ` : ""}
+      `;
+    }
+  </script>
+</body>
+</html>
